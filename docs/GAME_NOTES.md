@@ -59,4 +59,4 @@ Possible character animation jokes: mustache tips bounce during a sneeze, the wi
 
 ## Current scope
 
-This initial contribution is reference art and planning notes. It does not contain a playable game, 3D meshes, rigs, or animations.
+Update: Gem Meadow is now a playable mobile-browser prototype using four supplied textured models. It places gems on the ground for the initial loop, with touch joystick, keyboard, click-to-walk, dash, telegraphed fire, three hearts, pause, win/loss, and replay. Rigs and skeletal animations are not yet included. The earlier open decisions remain available for Sophia to revise.

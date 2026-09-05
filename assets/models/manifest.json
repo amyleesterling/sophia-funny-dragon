@@ -1,0 +1,34 @@
+[
+  {
+    "source": "Meshy_AI__0905161735_texture.glb",
+    "file": "dragon-one.glb",
+    "source_bytes": 6527728,
+    "bytes": 631092,
+    "geometry": "unchanged",
+    "rigged": false
+  },
+  {
+    "source": "Meshy_AI__0905161811_texture.glb",
+    "file": "dragon-two.glb",
+    "source_bytes": 5702096,
+    "bytes": 501660,
+    "geometry": "unchanged",
+    "rigged": false
+  },
+  {
+    "source": "Meshy_AI_Sunny_the_Dragon_0905161754_texture.glb",
+    "file": "sunny.glb",
+    "source_bytes": 5623700,
+    "bytes": 548912,
+    "geometry": "unchanged",
+    "rigged": false
+  },
+  {
+    "source": "Meshy_AI_Snugglehorn_the_Purpl_0905161824_texture.glb",
+    "file": "snugglehorn.glb",
+    "source_bytes": 6198652,
+    "bytes": 595500,
+    "geometry": "unchanged",
+    "rigged": false
+  }
+]

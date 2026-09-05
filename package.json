@@ -1,0 +1,9 @@
+{
+  "name": "sophia-funny-dragon",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/rules.test.js",
+    "check": "node --check game.js && node --check rules.js"
+  }
+}

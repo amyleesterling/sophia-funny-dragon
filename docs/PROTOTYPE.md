@@ -8,7 +8,7 @@ Live: https://amyleesterling.github.io/sophia-funny-dragon/
 | --- | --- | --- |
 | dragon-one.glb | Sir Snortstache (working name) | Meshy_AI__0905161735_texture.glb |
 | dragon-two.glb | Flapjack (working name) | Meshy_AI__0905161811_texture.glb |
-| sunny.glb | Sunny | Meshy_AI_Sunny_the_Dragon_0905161754_texture.glb |
+| clown-dragon.glb | Professor Wiggles | Meshy_AI__0906140638_texture_clown_dragon.glb |
 | snugglehorn.glb | Snugglehorn | Meshy_AI_Snugglehorn_the_Purpl_0905161824_texture.glb |
 
 All four are used in the game. These are derivatives of the user-supplied models, not newly generated Meshy API results. Geometry and UVs are unchanged. Base color textures are resized to at most 1024 pixels; roughness/metallic and normal textures to 512 pixels, stored as JPEG within the GLBs. The game bundle is approximately 2.3 MB for all four models. Original uploads remain unmodified. Exact sizes and source filenames are in `assets/models/manifest.json`.
@@ -44,6 +44,6 @@ Validation includes JavaScript syntax, local module/asset resolution, GLB buffer
 
 ### Silly flame personalities
 
-Sir Snortstache blows mint-green mustached puffs; Flapjack blows pink bubbles; Sunny blows yellow popcorn stars; Snugglehorn blows purple googly-eyed clouds. Each has matching glow and a comic attack caption. Cartoon sprites wobble along the simulated jet. Decorative glow and faces do not enlarge the damage footprint; warnings and collision still use the shared attack geometry.
+Sir Snortstache blows mint-green mustached puffs; Flapjack blows pink bubbles; Professor Wiggles blows rainbow stars with cycling rainbow light; Snugglehorn blows purple googly-eyed clouds. Each has matching glow and a comic attack caption. Cartoon sprites wobble along the simulated jet. Decorative glow and faces do not enlarge the damage footprint; warnings and collision still use the shared attack geometry.
 
 Original concepts: [all ten dragon references](../assets/references/README.md).

@@ -15,7 +15,7 @@ Collect gems while a cast of wonderfully silly dragons tries to breathe fire on 
 - [Character reference gallery](assets/references/README.md)
 - [Reference generation prompts](docs/ART_PROMPTS.md)
 
-Current stage: playable mobile-browser prototype, plus the original ten-image reference gallery. The two unnamed model uploads use the working names Sir Snortstache and Flapjack. Sunny and Snugglehorn retain their uploaded names.
+Current stage: playable mobile-browser prototype, plus the original ten-image reference gallery. The two unnamed model uploads use the working names Sir Snortstache and Flapjack. The clown dragon replaces Sunny and uses the working name Professor Wiggles; Snugglehorn retains its uploaded name.
 
 ## Development
 

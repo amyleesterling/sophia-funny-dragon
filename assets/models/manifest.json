@@ -16,12 +16,13 @@
     "rigged": false
   },
   {
-    "source": "Meshy_AI_Sunny_the_Dragon_0905161754_texture.glb",
-    "file": "sunny.glb",
-    "source_bytes": 5623700,
-    "bytes": 548912,
+    "source": "Meshy_AI__0906140638_texture_clown_dragon.glb",
+    "file": "clown-dragon.glb",
+    "source_bytes": 6863404,
+    "bytes": 701808,
     "geometry": "unchanged",
-    "rigged": false
+    "rigged": false,
+    "animations": []
   },
   {
     "source": "Meshy_AI_Snugglehorn_the_Purpl_0905161824_texture.glb",

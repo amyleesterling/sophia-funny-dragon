@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {RULES,clampArena,slideFromDragon,turnToward,createGemPositions,levelSettings,firePolygon} from './rules.js?v=2';
 
-import {FlameSimulation,FLAME_STYLES} from './flames.js?v=3';
+import {FlameSimulation,FLAME_STYLES} from './flames.js?v=4';
 
 const $=id=>document.getElementById(id);
 const canvas=$('world'), overlay=$('overlay'), play=$('play');
@@ -20,7 +20,7 @@ const characterAnimations={run:null,fast:null,gemCelebration:null,levelComplete:
 const DRAGONS=[
   {file:'dragon-one',name:'Sir Snortstache',home:[-6,-3.7],height:3.25,mouth:.76,nozzle:1.05,color:0x67dcc0},
   {file:'dragon-two',name:'Flapjack',home:[6,-3.7],height:3.05,mouth:.76,nozzle:.85,color:0xffb795},
-  {file:'sunny',name:'Sunny',home:[-6,5],height:3.2,mouth:.79,nozzle:.95,color:0xffb23e},
+  {file:'clown-dragon',name:'Professor Wiggles',home:[-6,5],height:3.2,mouth:.66,nozzle:1.34,color:0xff73df},
   {file:'snugglehorn',name:'Snugglehorn',home:[6,5],height:3.35,mouth:.91,nozzle:1.65,color:0xc391ff},
 ];
 
@@ -209,6 +209,7 @@ function updateDragons(dt){
       d.mode='idle';d.timer=cfg.cooldown+d.index*.25;d.fan.visible=false;d.label.className='dragon-label';d.label.textContent=d.name;d.attack=null;
     }
     const active=d.mode==='fire'||d.mode==='cooling';d.light.intensity=active?6+Math.sin(state.time*27+d.index)*1.5:0;
+    if(FLAME_STYLES[d.index].rainbow)d.light.color.setHSL((state.time*.8)%1,1,.5);
     if(d.attack)d.light.position.set(d.attack.x,d.attack.y-.4,d.attack.z);
     d.sway.scale.setScalar(1);d.sway.position.y=!reducedMotion&&d.mode==='idle'?Math.abs(Math.sin(state.time*5*cfg.speed+d.phase))*.08:0;
     d.sway.rotation.z=!reducedMotion&&d.mode==='idle'?Math.sin(state.time*5*cfg.speed+d.phase)*.025:0;d.shadow.position.set(p.x,.04,p.z);

@@ -4,7 +4,7 @@ import {RULES,attackContains,fireCoordinates,fireWidth} from './rules.js?v=2';
 export const FLAME_STYLES = [
   {color:0x28efb5, call:'MINT-CHOO!'},
   {color:0xff53b5, call:'BUBBLE BURP!'},
-  {color:0xffca24, call:'POP POP POOF!'},
+  {color:0xff53db, call:'RAINBOW HONK!', rainbow:true},
   {color:0xa855ff, call:'GOOGLY HONK!'},
 ];
 
@@ -15,6 +15,7 @@ export class FlameSimulation {
     this.particles=[];this.capacity=1800;this.seed=719;
     this.positions=new Float32Array(this.capacity*3);this.heat=new Float32Array(this.capacity);this.sizes=new Float32Array(this.capacity);
     this.colors=new Float32Array(this.capacity*3);this.styles=new Float32Array(this.capacity);this.spins=new Float32Array(this.capacity);this.comics=new Float32Array(this.capacity);
+    this.rainbowColor=new THREE.Color();
     this.palette=FLAME_STYLES.map(s=>new THREE.Color(s.color));
     this.geometry=new THREE.BufferGeometry();
     for(const[name,array,size]of [['position',this.positions,3],['heat',this.heat,1],['size',this.sizes,1],['flameColor',this.colors,3],['style',this.styles,1],['spin',this.spins,1],['comic',this.comics,1]])this.geometry.setAttribute(name,new THREE.BufferAttribute(array,size).setUsage(THREE.DynamicDrawUsage));
@@ -40,7 +41,7 @@ export class FlameSimulation {
         col=mix(col,vec3(1.,.85,.96),rim*.8);mask*=.45+.55*rim;
         col=mix(col,vec3(1.),disk(p-vec2(-.26,-.3),.13));
       }else if(vStyle<2.5){float edge=.62+.17*cos(theta*5.);
-        mask=1.-smoothstep(edge-.025,edge+.025,r);col=mix(col,vec3(1.,.95,.5),.35);
+        mask=1.-smoothstep(edge-.025,edge+.025,r);col=mix(col,vec3(1.),.12);
       }else{float edge=.66+.08*cos(theta*7.+vSpin);
         mask=1.-smoothstep(edge-.025,edge+.025,r);col=mix(col,vec3(1.,.45,.93),.25);
       }
@@ -75,7 +76,7 @@ export class FlameSimulation {
   }
   update(dt,dragons,time){let left=dt;while(left>0){const step=Math.min(left,1/90);this.step(step,dragons,time);left-=step;}
     this.particles.forEach((p,i)=>{this.positions.set([p.x,p.y,p.z],i*3);this.heat[i]=Math.max(0,1-p.life/p.max);this.sizes[i]=p.comic?(.82+Math.sin(p.life*16+p.phase)*.12+p.life*.3):(.25+p.life*.75);
-      const color=this.palette[p.owner];this.colors.set([color.r,color.g,color.b],i*3);this.styles[i]=p.owner;this.comics[i]=p.comic?1:0;this.spins[i]=Math.sin(p.life*9+p.phase)*.3;});
+      const color=FLAME_STYLES[p.owner].rainbow?this.rainbowColor.setHSL(((time*.8-p.life*1.6+p.phase*.04)%1+1)%1,1,.5):this.palette[p.owner];this.colors.set([color.r,color.g,color.b],i*3);this.styles[i]=p.owner;this.comics[i]=p.comic?1:0;this.spins[i]=Math.sin(p.life*9+p.phase)*.3;});
     this.geometry.setDrawRange(0,this.particles.length);for(const a of Object.values(this.geometry.attributes))a.needsUpdate=true;
   }
   hits(x,z){return this.particles.some(p=>p.life>.015&&p.y<1.85+p.radius&&attackContains(p.attack,x,z)&&Math.hypot(p.x-x,p.z-z)<p.radius+.28);}

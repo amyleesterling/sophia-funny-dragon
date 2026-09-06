@@ -14,7 +14,7 @@ SOURCES = [
     ('Meshy_AI_Sparkly_Rainbow_Cowgi_biped_Animation_Running_withSkin.glb', 'sophia-running'),
     ('Meshy_AI__0905161735_texture.glb', 'dragon-one'),
     ('Meshy_AI__0905161811_texture.glb', 'dragon-two'),
-    ('Meshy_AI_Sunny_the_Dragon_0905161754_texture.glb', 'sunny'),
+    ('Meshy_AI__0906140638_texture_clown_dragon.glb', 'clown-dragon'),
     ('Meshy_AI_Snugglehorn_the_Purpl_0905161824_texture.glb', 'snugglehorn'),
 ]
 

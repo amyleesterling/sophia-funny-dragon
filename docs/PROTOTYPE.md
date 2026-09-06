@@ -47,3 +47,5 @@ Validation includes JavaScript syntax, local module/asset resolution, GLB buffer
 Sir Snortstache blows mint-green mustached puffs; Flapjack blows pink bubbles; Professor Wiggles blows rainbow stars with cycling rainbow light; Snugglehorn blows purple googly-eyed clouds. Each has matching glow and a comic attack caption. Cartoon sprites wobble along the simulated jet. Decorative glow and faces do not enlarge the damage footprint; warnings and collision still use the shared attack geometry.
 
 Original concepts: [all ten dragon references](../assets/references/README.md).
+
+Sophia plays the uploaded jazz dance once after collecting the final gem, facing the camera. The next-level panel appears after the dance; starting the next level restores her running action. `sophia-level-complete.glb` contains only animation and its named hierarchy, reusing the existing Sophia mesh and textures. Rebuild with `python tools/prepare_celebration.py "path/to/sophie level complete animation.glb"`.

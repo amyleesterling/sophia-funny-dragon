@@ -42,5 +42,14 @@
     "animations": [
       "Armature|running|baselayer"
     ]
+  },
+  {
+    "source": "sophie level complete animation.glb",
+    "file": "sophia-level-complete.glb",
+    "bytes": 56988,
+    "animation_only": true,
+    "animations": [
+      "Armature|jazz_danc|baselayer"
+    ]
   }
 ]

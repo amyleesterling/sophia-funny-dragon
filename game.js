@@ -15,6 +15,7 @@ let muted=false,audio,toastTimer,flashTimer,lastFrame=0,frameCount=0;
 const dragons=[],gems=[],particles=[];
 const dummy=new THREE.Object3D(), temp=new THREE.Vector3(), camTarget=new THREE.Vector3();
 const raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+let celebrationView;
 let particlesMesh,flames,destinationRing,sophiaMixer,sophiaRun,sophiaIdleTime=0,wasRunning=false,celebrationRemaining=0,gemJumpRemaining=0;
 const characterAnimations={run:null,fast:null,gemCelebration:null,levelComplete:null,levelDances:[]};
 const DRAGONS=[
@@ -143,8 +144,30 @@ function resize(){
 }
 function resetInput(){input.x=input.z=0;input.target=null;input.keys.clear();input.pointer=null;$('stick').style.transform='translate(0px,0px)';if(destinationRing)destinationRing.visible=false;}
 function updateHUD(){$('level').textContent=state.level;$('score').textContent=state.score;$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(3-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} hearts`);}
+function showCelebration(){
+  const canvas=$('celebration-canvas');canvas.hidden=false;
+  if(!celebrationView){
+    const viewScene=new THREE.Scene();
+    viewScene.add(new THREE.HemisphereLight(0xffffff,0xc3a3d6,2.5));
+    const key=new THREE.DirectionalLight(0xfff2da,3);key.position.set(3,5,5);viewScene.add(key);
+    const viewCamera=new THREE.OrthographicCamera(-1.6,1.6,1.6,-1.6,.1,30);
+    viewCamera.position.set(0,1.3,6);viewCamera.lookAt(0,1.15,0);
+    const viewRenderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+    viewRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    celebrationView={scene:viewScene,camera:viewCamera,renderer:viewRenderer,width:0,height:0};
+  }
+  celebrationView.scene.add(heroBody);
+}
+function renderCelebration(){
+  if(!celebrationView)return;
+  const canvas=$('celebration-canvas'),view=celebrationView;
+  const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
+  if(w!==view.width||h!==view.height){view.width=w;view.height=h;view.renderer.setSize(w,h,false);view.camera.left=-1.6*w/h;view.camera.right=1.6*w/h;view.camera.updateProjectionMatrix();}
+  view.renderer.render(view.scene,view.camera);
+}
 function newRound(next=false){
   state.level=next?state.level+1:1;
+  player.add(heroBody);$('celebration-canvas').hidden=true;
   celebrationRemaining=0;gemJumpRemaining=0;characterAnimations.gemCelebration.stop();characterAnimations.levelComplete.stop();sophiaRun.reset().play();sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;wasRunning=false;
   resetInput();Object.assign(state,{mode:'playing',time:0,score:0,hearts:3,invulnerable:1,dash:0,cooldown:0,elapsed:0});
   player.position.set(0,0,5.5);player.rotation.set(0,Math.PI,0);input.lastX=0;input.lastZ=-1;heroBody.visible=true;particles.length=0;flames.clear();
@@ -156,10 +179,10 @@ function pause(){
   if(state.mode!=='playing')return;state.mode='paused';resetInput();showPanel('TAKE A BREATHER','Dragons on pause.','Your gems are safe. Ready when you are.','Keep playing');$('pause').textContent='▶';$('pause').setAttribute('aria-label','Resume game');
 }
 function resume(){state.mode='playing';overlay.hidden=true;$('pause').textContent='Ⅱ';$('pause').setAttribute('aria-label','Pause game');canvas.focus({preventScroll:true});}
-function showPanel(kicker,title,description,button){$('panel-kicker').textContent=kicker;$('panel-title').textContent=title;$('panel-description').textContent=description;$('instructions').hidden=true;$('panel-foot').textContent='Made from Sophia’s dragon ideas.';play.textContent=button;overlay.hidden=false;play.focus({preventScroll:true});}
+function showPanel(kicker,title,description,button){$('celebration-canvas').hidden=true;$('panel-kicker').textContent=kicker;$('panel-title').textContent=title;$('panel-description').textContent=description;$('instructions').hidden=true;$('panel-foot').textContent='Made from Sophia’s dragon ideas.';play.textContent=button;overlay.hidden=false;play.focus({preventScroll:true});}
 function finish(won){
   state.mode=won?'won':'lost';gemJumpRemaining=0;characterAnimations.gemCelebration.stop();resetInput();heroBody.visible=true;sophiaRun.paused=true;
-  if(won){characterAnimations.levelComplete=characterAnimations.levelDances[(state.level-1)%characterAnimations.levelDances.length];sophiaRun.stop();characterAnimations.levelComplete.reset().play();celebrationRemaining=characterAnimations.levelComplete.getClip().duration;player.rotation.y=Math.atan2(camera.position.x-player.position.x,camera.position.z-player.position.z);for(let i=0;i<5;i++)burst(player.position.x+(i-2),2,player.position.z,0xffdd65,25);beep(880,.25);setTimeout(()=>beep(1174,.35),160);showPanel(`LEVEL ${state.level} COMPLETE!`,'A gem of an adventure.',`You out-dodged four silly dragons in ${Math.floor(state.elapsed/60)}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}. The next meadow has busier dragons!`,'Next level');overlay.hidden=true;toast('Level complete! Victory dance!');}
+  if(won){characterAnimations.levelComplete=characterAnimations.levelDances[(state.level-1)%characterAnimations.levelDances.length];sophiaRun.stop();characterAnimations.levelComplete.reset().play();celebrationRemaining=characterAnimations.levelComplete.getClip().duration;player.rotation.y=Math.atan2(camera.position.x-player.position.x,camera.position.z-player.position.z);for(let i=0;i<5;i++)burst(player.position.x+(i-2),2,player.position.z,0xffdd65,25);beep(880,.25);setTimeout(()=>beep(1174,.35),160);showPanel(`LEVEL ${state.level} COMPLETE!`,'A gem of an adventure.',`You out-dodged four silly dragons in ${Math.floor(state.elapsed/60)}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}. The next meadow has busier dragons!`,'Next level');showCelebration();}
   else{showPanel('A LITTLE TOO TOASTY','Oops. Dragon breath!',`You found ${state.score} of 20 gems. Try dashing sideways when the orange warning appears.`,'Try again');beep(180,.3,'triangle');}
 }
 function dash(){
@@ -247,7 +270,8 @@ function frame(now){
   if(!scene)return;
   if(state.mode==='playing'){state.time+=dt;state.elapsed+=dt;movePlayer(dt);if(state.mode==='playing')updateDragons(dt);}
   else if(state.mode==='ready'||state.mode==='loading'){state.time+=dt;for(const d of dragons){if(!d)continue;d.sway.rotation.z=reducedMotion?0:Math.sin(state.time*1.4+d.phase)*.02;d.shadow.position.set(d.root.position.x,.04,d.root.position.z);}}
-  if(state.mode==='won'&&celebrationRemaining>0){sophiaMixer.update(dt);celebrationRemaining=Math.max(0,celebrationRemaining-dt);if(celebrationRemaining===0){overlay.hidden=false;play.focus({preventScroll:true});}}
+  if(state.mode==='won'&&celebrationRemaining>0){sophiaMixer.update(dt);celebrationRemaining=Math.max(0,celebrationRemaining-dt);}
+  if(state.mode==='won')renderCelebration();
   if(state.mode!=='paused')updateEffects(dt);
   for(const g of gems)if(!g.collected){g.mesh.rotation.y=state.time+g.phase;g.mesh.position.y=.66+Math.sin(state.time*2.5+g.phase)*.12;}
   if(player){

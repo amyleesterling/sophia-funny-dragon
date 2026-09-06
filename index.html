@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#164d45">
   <meta name="description" content="Sophia's Funny Dragon: collect sparkling gems and dodge four delightfully silly dragons. A free little 3D game for touch and keyboard.">
   <title>Sophia's Funny Dragon · Gem Meadow</title>
-  <link rel="stylesheet" href="./style.css?v=2">
+  <link rel="stylesheet" href="./style.css?v=8">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -33,6 +33,7 @@
         <h1 id="panel-title">Gems, giggles.<br><em>And a little fire.</em></h1>
         <p id="panel-description">Run with Sophia. Collect 20 gems.<br>Dash out of the orange warning zones!</p>
         <div class="instructions" id="instructions"><span>◆ <b>Collect gems</b></span><span>↗ <b>Dash to safety</b></span><span>♥ <b>Three chances</b></span></div>
+        <canvas id="celebration-canvas" hidden role="img" aria-label="Sophia performs her victory dance"></canvas>
         <button id="play" class="play-button" disabled>Waking the dragons…</button>
         <div class="load-track" id="load-track"><div id="load-progress"></div></div>
         <p class="panel-foot" id="panel-foot">Sophia and four silly dragons are getting ready.</p>
@@ -41,6 +42,6 @@
     <div class="vignette" id="hurt-flash"></div>
     <noscript>This game needs JavaScript enabled to bring the dragons to life.</noscript>
   </main>
-  <script type="module" src="./game.js?v=7"></script>
+  <script type="module" src="./game.js?v=8"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
-import {RULES,clampArena,slideFromDragon,turnToward,createGemPositions,levelSettings,firePolygon} from './rules.js?v=2';
+import {RULES,clampArena,slideFromDragon,turnToward,createGemPositions,levelSettings,firePolygon} from './rules.js?v=3';
 
 import {FlameSimulation,FLAME_STYLES} from './flames.js?v=4';
 
@@ -8,7 +8,7 @@ const $=id=>document.getElementById(id);
 const canvas=$('world'), overlay=$('overlay'), play=$('play');
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse=matchMedia('(pointer: coarse)').matches;
-const state={mode:'loading',level:1,time:0,score:0,hearts:3,invulnerable:0,dash:0,cooldown:0,elapsed:0};
+const state={mode:'loading',level:1,time:0,score:0,hearts:RULES.lives,invulnerable:0,dash:0,cooldown:0,elapsed:0};
 const input={x:0,z:0,target:null,keys:new Set(),pointer:null,lastX:0,lastZ:-1};
 let renderer,scene,camera,player,heroBody,heroScarf,heroShadow,halo;
 let muted=false,audio,toastTimer,flashTimer,lastFrame=0,frameCount=0;
@@ -143,7 +143,7 @@ function resize(){
   camera.left=-height*aspect/2;camera.right=height*aspect/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();renderer.setSize(w,h,false);if(flames)flames.material.uniforms.pixelScale.value=h/height*renderer.getPixelRatio();
 }
 function resetInput(){input.x=input.z=0;input.target=null;input.keys.clear();input.pointer=null;$('stick').style.transform='translate(0px,0px)';if(destinationRing)destinationRing.visible=false;}
-function updateHUD(){$('level').textContent=state.level;$('score').textContent=state.score;$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(3-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} hearts`);}
+function updateHUD(){$('level').textContent=state.level;$('score').textContent=state.score;$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(RULES.lives-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} of ${RULES.lives} lives`);}
 function showCelebration(){
   const canvas=$('celebration-canvas');canvas.hidden=false;
   if(!celebrationView){
@@ -167,12 +167,13 @@ function renderCelebration(){
 }
 function newRound(next=false){
   state.level=next?state.level+1:1;
+  const cfg=levelSettings(state.level);
   player.add(heroBody);$('celebration-canvas').hidden=true;
   celebrationRemaining=0;gemJumpRemaining=0;characterAnimations.gemCelebration.stop();characterAnimations.levelComplete.stop();sophiaRun.reset().play();sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;wasRunning=false;
-  resetInput();Object.assign(state,{mode:'playing',time:0,score:0,hearts:3,invulnerable:1,dash:0,cooldown:0,elapsed:0});
+  resetInput();Object.assign(state,{mode:'playing',time:0,score:0,hearts:RULES.lives,invulnerable:1,dash:0,cooldown:0,elapsed:0});
   player.position.set(0,0,5.5);player.rotation.set(0,Math.PI,0);input.lastX=0;input.lastZ=-1;heroBody.visible=true;particles.length=0;flames.clear();
   for(const g of gems){g.collected=false;g.mesh.visible=g.ring.visible=true;}
-  for(const d of dragons){d.mode='idle';d.timer=3.5+d.index*1.7;d.root.position.set(d.home[0],0,d.home[1]);d.fan.visible=false;d.label.className='dragon-label';d.label.textContent=d.name;d.attack=null;d.waypoint=null;d.light.intensity=0;d.emission=0;}
+  for(const d of dragons){d.mode='idle';d.timer=cfg.openingDelay+d.index*cfg.openingStagger;d.root.position.set(d.home[0],0,d.home[1]);d.fan.visible=false;d.label.className='dragon-label';d.label.textContent=d.name;d.attack=null;d.waypoint=null;d.light.intensity=0;d.emission=0;}
   overlay.hidden=true;updateHUD();$('pause').textContent='Ⅱ';$('pause').setAttribute('aria-label','Pause game');toast(`Level ${state.level}: ${state.level===1?'find the gems!':'the dragons are on the move!'}`);canvas.focus({preventScroll:true});
 }
 function pause(){
@@ -200,9 +201,9 @@ function movePlayer(dt){
   if(input.target&&Math.hypot(x,z)<.05){x=input.target.x-player.position.x;z=input.target.z-player.position.z;if(Math.hypot(x,z)<.16){input.target=null;destinationRing.visible=false;x=z=0;}}
   let length=Math.hypot(x,z);if(length>1){x/=length;z/=length;}if(length>.08){input.lastX=x/Math.hypot(x,z);input.lastZ=z/Math.hypot(x,z);}
   const dashing=state.dash>0;if(dashing){x=input.lastX;z=input.lastZ;length=1;}
-  const speed=dashing?RULES.dashSpeed:RULES.speed;let px=player.position.x+x*speed*dt,pz=player.position.z+z*speed*dt;
+  const speed=dashing?RULES.dashSpeed:RULES.speed,oldX=player.position.x,oldZ=player.position.z;let px=oldX+x*speed*dt,pz=oldZ+z*speed*dt;
   [px,pz]=clampArena(px,pz);for(const d of dragons)[px,pz]=slideFromDragon(px,pz,d.root.position.x,d.root.position.z);[px,pz]=clampArena(px,pz);
-  player.position.set(px,0,pz);if(length>.08)player.rotation.y=turnToward(player.rotation.y,Math.atan2(x,z),dt*15);
+  player.position.set(px,0,pz);state.playerVX=(px-oldX)/dt;state.playerVZ=(pz-oldZ)/dt;if(length>.08)player.rotation.y=turnToward(player.rotation.y,Math.atan2(x,z),dt*15);
   const running=length>.08;
   if(gemJumpRemaining>0){
     sophiaMixer.update(dt);gemJumpRemaining=Math.max(0,gemJumpRemaining-dt);
@@ -220,7 +221,9 @@ function movePlayer(dt){
 
 function chooseWaypoint(d){
   const cfg=levelSettings(state.level),a=Math.random()*Math.PI*2,r=cfg.roam*(.45+Math.random()*.55);
-  const x=d.home[0]+Math.sin(a)*r,z=d.home[1]+Math.cos(a)*r;
+  const hunting=Math.random()<cfg.pursuit;
+  const x=hunting?player.position.x+Math.sin(a)*r*.35:d.home[0]+Math.sin(a)*r;
+  const z=hunting?player.position.z+Math.cos(a)*r*.35:d.home[1]+Math.cos(a)*r;
   const n=Math.hypot(x,z),scale=n>9.7?9.7/n:1;d.waypoint={x:x*scale,z:z*scale};
 }
 function updateDragons(dt){
@@ -235,14 +238,14 @@ function updateDragons(dt){
       for(const other of dragons)if(other!==d)[x,z]=slideFromDragon(x,z,other.root.position.x,other.root.position.z,2.15);
       [x,z]=slideFromDragon(x,z,player.position.x,player.position.z,1.25);[x,z]=clampArena(x,z);p.set(x,0,z);
       d.root.rotation.y=turnToward(d.root.rotation.y,Math.atan2(dx,dz),dt*3);
-      if(d.timer<=0&&dist<8&&dragons.filter(v=>v.mode!=='idle').length<2){
-        d.mode='charge';d.timer=RULES.chargeTime;d.angle=Math.atan2(player.position.x-p.x,player.position.z-p.z);d.root.rotation.y=d.angle;
+      if(d.timer<=0&&dist<cfg.attackRange&&dragons.filter(v=>v.mode!=='idle').length<cfg.maxAttackers){
+        d.mode='charge';d.timer=cfg.chargeTime;d.angle=Math.atan2(player.position.x-p.x,player.position.z-p.z);d.root.rotation.y=d.angle;
         d.attack=Object.freeze({x:p.x+Math.sin(d.angle)*d.nozzle,z:p.z+Math.cos(d.angle)*d.nozzle,y:d.height*d.mouth,angle:d.angle});
         d.fan.position.set(d.attack.x,0,d.attack.z);d.fan.rotation.y=d.angle;d.fan.visible=true;d.label.className='dragon-label warning';d.label.textContent='Big breath…';beep(230,.18,'sine',.025);
       }
     }else if(d.mode==='charge'){
-      d.fan.material.color.setHex(0xffba48);d.fan.material.opacity=.3+(1-d.timer/RULES.chargeTime)*.25;
-      if(d.timer<=0){d.mode='fire';d.timer=RULES.fireTime;d.label.className='dragon-label firing';d.label.textContent=FLAME_STYLES[d.index].call;beep(85,.25,'sawtooth',.024);}
+      d.fan.material.color.setHex(0xffba48);d.fan.material.opacity=.3+(1-d.timer/cfg.chargeTime)*.25;
+      if(d.timer<=0){d.mode='fire';d.timer=cfg.fireTime;d.label.className='dragon-label firing';d.label.textContent=FLAME_STYLES[d.index].call;beep(85,.25,'sawtooth',.024);}
     }else if(d.mode==='fire'){
       d.fan.material.color.setHex(0xff713f);d.fan.material.opacity=.22;
       if(d.timer<=0)d.mode='cooling';
@@ -257,7 +260,7 @@ function updateDragons(dt){
   }
 }
 function updateEffects(dt){
-  if(state.mode==='playing'){flames.update(dt,dragons,state.time);if(flames.hits(player.position.x,player.position.z))hit();}
+  if(state.mode==='playing'){flames.update(dt,dragons,state.time,{x:player.position.x,z:player.position.z,vx:state.playerVX||0,vz:state.playerVZ||0});if(flames.hits(player.position.x,player.position.z))hit();}
   for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;if(p.life<=0){particles.splice(i,1);continue;}p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy-=7*dt;}
   particles.forEach((p,i)=>{dummy.position.set(p.x,Math.max(.06,p.y),p.z);dummy.rotation.set(p.life*5,p.life*7,0);dummy.scale.setScalar(Math.min(1,p.life*3));dummy.updateMatrix();particlesMesh.setMatrixAt(i,dummy.matrix);particlesMesh.setColorAt(i,new THREE.Color(p.color));});
   particlesMesh.count=particles.length;particlesMesh.instanceMatrix.needsUpdate=true;if(particlesMesh.instanceColor)particlesMesh.instanceColor.needsUpdate=true;

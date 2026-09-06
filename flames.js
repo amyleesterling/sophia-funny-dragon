@@ -67,14 +67,25 @@ export class FlameSimulation {
   step(dt,dragons,time){
     for(const d of dragons)if(d?.mode==='fire')this.emit(d,dt);
     for(let i=this.particles.length-1;i>=0;i--){const p=this.particles[i];p.life+=dt;
-      const side=Math.sin(time*12+p.phase)*1.9;p.vx+=(Math.cos(p.attack.angle)*side-p.vx*.12)*dt;p.vz+=(-Math.sin(p.attack.angle)*side-p.vz*.12)*dt;p.vy+=(2.2-p.vy*.2)*dt;
+      const q0=fireCoordinates(p.attack,p.x,p.z);
+      const curl=q0.forward*3.2-p.life*20+p.phase;
+      const gust=Math.sin(time*.83+p.phase*.17)*.75+Math.cos(time*.37)*.35;
+      const side=Math.sin(curl)*4.8+Math.sin(time*13+p.phase)*1.5;
+      p.vx+=(Math.cos(p.attack.angle)*side+gust-p.vx*.16)*dt;
+      p.vz+=(-Math.sin(p.attack.angle)*side+Math.cos(time*.61)*.65-p.vz*.16)*dt;
+      p.vy+=(2.35+Math.cos(curl)*3.1-p.vy*.22)*dt;
+      if(this.player){
+        const rx=p.x-this.player.x,rz=p.z-this.player.z,near=Math.max(0,1-Math.hypot(rx,rz)/3);
+        const playerSpeed=Math.hypot(this.player.vx,this.player.vz);
+        if(near&&playerSpeed>.2){const wake=near*Math.min(1,playerSpeed/RULES.dashSpeed);p.vx+=this.player.vx*wake*.32*dt;p.vz+=this.player.vz*wake*.32*dt;p.vy+=wake*1.2*dt;}
+      }
       p.x+=p.vx*dt;p.z+=p.vz*dt;p.y=Math.max(.18,p.y+p.vy*dt);
       const q=fireCoordinates(p.attack,p.x,p.z);
       if(p.life>=p.max||q.forward>=RULES.fireLength||q.forward<0){this.particles.splice(i,1);continue;}
       const limit=Math.max(0,fireWidth(q.forward)-p.radius);if(Math.abs(q.side)>limit){const shift=q.side-Math.sign(q.side)*limit;p.x-=Math.cos(p.attack.angle)*shift;p.z+=Math.sin(p.attack.angle)*shift;}
     }
   }
-  update(dt,dragons,time){let left=dt;while(left>0){const step=Math.min(left,1/90);this.step(step,dragons,time);left-=step;}
+  update(dt,dragons,time,player=null){this.player=player;let left=dt;while(left>0){const step=Math.min(left,1/90);this.step(step,dragons,time);left-=step;}
     this.particles.forEach((p,i)=>{this.positions.set([p.x,p.y,p.z],i*3);this.heat[i]=Math.max(0,1-p.life/p.max);this.sizes[i]=p.comic?(.82+Math.sin(p.life*16+p.phase)*.12+p.life*.3):(.25+p.life*.75);
       const color=FLAME_STYLES[p.owner].rainbow?this.rainbowColor.setHSL(((time*.8-p.life*1.6+p.phase*.04)%1+1)%1,1,.5):this.palette[p.owner];this.colors.set([color.r,color.g,color.b],i*3);this.styles[i]=p.owner;this.comics[i]=p.comic?1:0;this.spins[i]=Math.sin(p.life*9+p.phase)*.3;});
     this.geometry.setDrawRange(0,this.particles.length);for(const a of Object.values(this.geometry.attributes))a.needsUpdate=true;

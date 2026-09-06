@@ -17,9 +17,14 @@ test('warning mesh vertices use the same range and width as collision',()=>{
  const v=firePolygon();assert.equal(v.length,18);
  assert.equal(v[8],RULES.fireLength);assert.equal(v[6],fireWidth(RULES.fireLength));assert.equal(v[15],-fireWidth(RULES.fireLength));
 });
-test('levels progressively increase roaming and speed with bounded difficulty',()=>{
- assert.ok(levelSettings(2).speed>levelSettings(1).speed);assert.ok(levelSettings(4).roam>levelSettings(2).roam);
- assert.equal(levelSettings(100).speed,2.2);assert.equal(levelSettings(100).roam,7);assert.ok(levelSettings(100).cooldown>=2.1);
+test('levels sharply increase pressure while keeping every setting bounded',()=>{
+ const first=levelSettings(1),second=levelSettings(2),fourth=levelSettings(4),max=levelSettings(100);
+ assert.equal(RULES.lives,5);
+ assert.ok(second.speed>first.speed);assert.ok(fourth.roam>second.roam);
+ assert.ok(second.cooldown<first.cooldown);assert.ok(second.chargeTime<first.chargeTime);assert.ok(second.fireTime>first.fireTime);
+ assert.ok(second.attackRange>first.attackRange);assert.ok(second.maxAttackers>=first.maxAttackers);assert.ok(second.pursuit>first.pursuit);
+ assert.equal(max.speed,3.8);assert.equal(max.roam,9.5);assert.equal(max.cooldown,.65);assert.equal(max.chargeTime,.55);
+ assert.equal(max.fireTime,1.75);assert.equal(max.maxAttackers,4);assert.equal(max.attackRange,14);assert.equal(max.pursuit,.82);
 });
 test('arena bounds and dragon collisions stay finite even at exact overlap',()=>{
   assert.deepEqual(clampArena(0,0),[0,0]);

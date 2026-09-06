@@ -11,6 +11,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = [
+    ('Meshy_AI_Sparkly_Rainbow_Cowgi_biped_Animation_Running_withSkin.glb', 'sophia-running'),
     ('Meshy_AI__0905161735_texture.glb', 'dragon-one'),
     ('Meshy_AI__0905161811_texture.glb', 'dragon-two'),
     ('Meshy_AI_Sunny_the_Dragon_0905161754_texture.glb', 'sunny'),
@@ -60,7 +61,7 @@ def main():
         target = dest / (slug + '.glb')
         target.write_bytes(pack(doc, bytes(blob)))
         record = {'source': original, 'file': target.name, 'source_bytes': src.stat().st_size,
-                  'bytes': target.stat().st_size, 'geometry': 'unchanged', 'rigged': False}
+                  'bytes': target.stat().st_size, 'geometry': 'unchanged', 'rigged': bool(doc.get('skins')), 'animations': [a.get('name', '') for a in doc.get('animations', [])]}
         manifest.append(record)
         print(f'{target.name}: {record["source_bytes"]:,} -> {record["bytes"]:,} bytes')
     (dest / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

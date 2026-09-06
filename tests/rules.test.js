@@ -1,23 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {RULES,insideFire,clampArena,slideFromDragon,turnToward,createGemPositions} from '../rules.js';
+import {RULES,attackContains,firePolygon,fireWidth,levelSettings,clampArena,slideFromDragon,turnToward,createGemPositions} from '../rules.js';
 
-test('fire points where the dragon faces, never behind it',()=>{
-  assert.equal(insideFire(0,3,0,0,0),true);
-  assert.equal(insideFire(0,-3,0,0,0),false);
-  assert.equal(insideFire(3,0,0,0,Math.PI/2),true);
-  assert.equal(insideFire(-3,0,0,0,Math.PI/2),false);
-});
-test('sideways dodges and leaving range escape the fire cone',()=>{
-  assert.equal(insideFire(2,3,0,0,0),false);
-  assert.equal(insideFire(0,7,0,0,0),false);
-  assert.equal(insideFire(0,RULES.fireLength,0,0,0),true);
-});
-test('all rotated attack directions match the same collision geometry',()=>{
-  for(let angle=-Math.PI;angle<=Math.PI;angle+=.13){
-    assert.equal(insideFire(2+Math.sin(angle)*3,-4+Math.cos(angle)*3,2,-4,angle),true);
-    assert.equal(insideFire(2-Math.sin(angle)*3,-4-Math.cos(angle)*3,2,-4,angle),false);
+test('warning and hit region share their mouth-origin footprint at every heading',()=>{
+  for(let angle=-Math.PI;angle<Math.PI;angle+=.13){
+    const a={x:2,z:-4,angle};
+    const world=(f,side)=>[a.x+Math.sin(angle)*f+Math.cos(angle)*side,a.z+Math.cos(angle)*f-Math.sin(angle)*side];
+    assert.equal(attackContains(a,...world(3,0)),true);
+    assert.equal(attackContains(a,...world(-.01,0)),false);
+    assert.equal(attackContains(a,...world(RULES.fireLength+.01,0)),false);
+    assert.equal(attackContains(a,...world(3,fireWidth(3)+.001)),false);
+    assert.equal(attackContains(a,...world(3,fireWidth(3)-.001)),true);
   }
+});
+test('warning mesh vertices use the same range and width as collision',()=>{
+ const v=firePolygon();assert.equal(v.length,18);
+ assert.equal(v[8],RULES.fireLength);assert.equal(v[6],fireWidth(RULES.fireLength));assert.equal(v[15],-fireWidth(RULES.fireLength));
+});
+test('levels progressively increase roaming and speed with bounded difficulty',()=>{
+ assert.ok(levelSettings(2).speed>levelSettings(1).speed);assert.ok(levelSettings(4).roam>levelSettings(2).roam);
+ assert.equal(levelSettings(100).speed,2.2);assert.equal(levelSettings(100).roam,7);assert.ok(levelSettings(100).cooldown>=2.1);
 });
 test('arena bounds and dragon collisions stay finite even at exact overlap',()=>{
   assert.deepEqual(clampArena(0,0),[0,0]);

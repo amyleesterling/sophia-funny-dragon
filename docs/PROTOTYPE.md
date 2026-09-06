@@ -32,3 +32,12 @@ The supplied models have no skeletons, skin weights, or animation clips. Whole-m
 This is static HTML/CSS/JavaScript with vendored Three.js 0.180.0. It needs WebGL 2 and has no backend, accounts, analytics, API keys, or external runtime dependencies. UI fonts are system fonts. Device pixel ratio is capped to reduce mobile GPU work. Models are loaded once, and instanced effects reuse geometry.
 
 Validation includes JavaScript syntax, local module/asset resolution, GLB buffer and geometry checks, and deterministic gameplay tests. An actual-device playtest is still needed to tune control feel, visibility, and frame rate on Sophia's phone/tablet. Rigged character animation and further texture/mesh refinement are next production steps.
+
+## Update: Sophia, levels, and simulated fire
+
+- Sophia now uses the supplied running GLB with its skeleton and clip intact. Horizontal Hips translation is neutralized on a cloned runtime clip so game movement owns her world position. Running pauses in a selected frame while stopped; an idle clip has not been supplied. Dash currently retimes the same running clip. Separate FAST, gem-celebration jump, and level-complete dance slots are reserved but not fabricated.
+- The explorer description above is superseded by Sophia's supplied character.
+- Winning opens the next level. Dragon waypoint radius and speed increase per level, capped at 7 units and 2.2 units/second. Dragons avoid one another and the player while roaming and stand still while aiming/firing/cooling.
+- Flames now use persistent particles integrated in steps no longer than 1/90 second with jet divergence, lateral turbulence, drag, and upward buoyancy. Additive shader sprites and flickering point lights provide glow. This is a lightweight game simulation, not a computational fluid-dynamics solver.
+- A frozen mouth-origin attack object drives the warning polygon, particle envelope, and hit gate. Damage requires a nearby particle at character height plus being inside the warned footprint. Outside the warning is safe; the envelope is conservative rather than every point being damaging simultaneously. It stays visible through particle expiry.
+- Validation: real GLB parsing and animation binding, movement, dash immunity, pause/resume, level advancement, aim locking, particle containment/expiry, warning-boundary tests, and existing gem/win/loss tests. Visual control feel still benefits from an actual device playtest.

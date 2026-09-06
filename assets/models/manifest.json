@@ -30,5 +30,16 @@
     "bytes": 595500,
     "geometry": "unchanged",
     "rigged": false
+  },
+  {
+    "source": "Meshy_AI_Sparkly_Rainbow_Cowgi_biped_Animation_Running_withSkin.glb",
+    "file": "sophia-running.glb",
+    "source_bytes": 8948008,
+    "bytes": 2004448,
+    "geometry": "unchanged",
+    "rigged": true,
+    "animations": [
+      "Armature|running|baselayer"
+    ]
   }
 ]

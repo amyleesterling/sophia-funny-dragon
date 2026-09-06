@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#164d45">
   <meta name="description" content="Sophia's Funny Dragon: collect sparkling gems and dodge four delightfully silly dragons. A free little 3D game for touch and keyboard.">
   <title>Sophia's Funny Dragon · Gem Meadow</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=2">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 </head>
 <body>
   <main id="game" aria-label="Gem Meadow game">
     <canvas id="world" tabindex="0" aria-label="3D game. Move with arrow keys or W A S D. Press space to dash, Escape to pause."></canvas>
     <header class="hud">
-      <div class="brand"><span class="eyebrow">SOPHIA'S</span><strong>Funny Dragon<span class="brand-dot">!</span></strong><span class="location">GEM MEADOW</span></div>
+      <div class="brand"><span class="eyebrow">SOPHIA'S</span><strong>Funny Dragon<span class="brand-dot">!</span></strong><span class="location">GEM MEADOW · LEVEL <b id="level">1</b></span></div>
       <div class="stats">
         <div class="gem-counter" aria-label="Gems collected"><span class="gem-icon" aria-hidden="true">◆</span><span><b id="score">0</b><span class="goal"> / 20</span></span></div>
         <div class="hearts" id="hearts" aria-label="3 hearts">♥ ♥ ♥</div>
@@ -31,16 +31,16 @@
       <div class="panel">
         <div class="panel-kicker" id="panel-kicker">A LITTLE ADVENTURE BY SOPHIA</div>
         <h1 id="panel-title">Gems, giggles.<br><em>And a little fire.</em></h1>
-        <p id="panel-description">Collect 20 gems. Dodge the dragon breath.<br>Dash out of the orange warning zones!</p>
+        <p id="panel-description">Run with Sophia. Collect 20 gems.<br>Dash out of the orange warning zones!</p>
         <div class="instructions" id="instructions"><span>◆ <b>Collect gems</b></span><span>↗ <b>Dash to safety</b></span><span>♥ <b>Three chances</b></span></div>
         <button id="play" class="play-button" disabled>Waking the dragons…</button>
         <div class="load-track" id="load-track"><div id="load-progress"></div></div>
-        <p class="panel-foot" id="panel-foot">Four very silly dragons are getting ready.</p>
+        <p class="panel-foot" id="panel-foot">Sophia and four silly dragons are getting ready.</p>
       </div>
     </section>
     <div class="vignette" id="hurt-flash"></div>
     <noscript>This game needs JavaScript enabled to bring the dragons to life.</noscript>
   </main>
-  <script type="module" src="./game.js"></script>
+  <script type="module" src="./game.js?v=2"></script>
 </body>
 </html>

@@ -3,9 +3,9 @@ Sophie's funny dragon game made with Astra
 
 **[Play Gem Meadow](https://amyleesterling.github.io/sophia-funny-dragon/)**
 
-Collect 20 gems while dodging four silly dragons. On a phone, use the left joystick and the DASH button. On a computer, use WASD or arrow keys, Space to dash, and Escape to pause. Click the ground to walk there.
+Play as Sophia! Collect 20 gems per level while dodging four silly dragons. Each new level makes the dragons roam farther and faster. On a phone, use the left joystick and the DASH button. On a computer, use WASD or arrow keys, Space to dash, and Escape to pause. Click the ground to walk there.
 
-The first playable prototype includes the four supplied textured GLB dragons, visible fire warnings, three hearts, gem collecting, a win screen, replay, optional sound, and pause when the tab loses focus. Dragon movement uses whole-model turns and bobs; these models do not yet have articulated rigs.
+The first playable prototype includes the four supplied textured GLB dragons, visible fire warnings, three hearts, gem collecting, a win screen, replay, optional sound, and pause when the tab loses focus. Sophia uses her supplied rigged running animation. Dragon movement uses whole-model roaming, turns and bobs; the dragons do not yet have articulated rigs. Flames use simulated particles with velocity, drag, turbulence, buoyancy and additive glow. The mouth-origin warning shows the shared particle/damage envelope and remains visible until the flame particles expire.
 
 Collect gems while a cast of wonderfully silly dragons tries to breathe fire on you.
 

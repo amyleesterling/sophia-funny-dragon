@@ -41,3 +41,9 @@ Validation includes JavaScript syntax, local module/asset resolution, GLB buffer
 - Flames now use persistent particles integrated in steps no longer than 1/90 second with jet divergence, lateral turbulence, drag, and upward buoyancy. Additive shader sprites and flickering point lights provide glow. This is a lightweight game simulation, not a computational fluid-dynamics solver.
 - A frozen mouth-origin attack object drives the warning polygon, particle envelope, and hit gate. Damage requires a nearby particle at character height plus being inside the warned footprint. Outside the warning is safe; the envelope is conservative rather than every point being damaging simultaneously. It stays visible through particle expiry.
 - Validation: real GLB parsing and animation binding, movement, dash immunity, pause/resume, level advancement, aim locking, particle containment/expiry, warning-boundary tests, and existing gem/win/loss tests. Visual control feel still benefits from an actual device playtest.
+
+### Silly flame personalities
+
+Sir Snortstache blows mint-green mustached puffs; Flapjack blows pink bubbles; Sunny blows yellow popcorn stars; Snugglehorn blows purple googly-eyed clouds. Each has matching glow and a comic attack caption. Cartoon sprites wobble along the simulated jet. Decorative glow and faces do not enlarge the damage footprint; warnings and collision still use the shared attack geometry.
+
+Original concepts: [all ten dragon references](../assets/references/README.md).

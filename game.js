@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {RULES,clampArena,slideFromDragon,turnToward,createGemPositions,levelSettings,firePolygon} from './rules.js?v=2';
 
-import {FlameSimulation} from './flames.js?v=2';
+import {FlameSimulation,FLAME_STYLES} from './flames.js?v=3';
 
 const $=id=>document.getElementById(id);
 const canvas=$('world'), overlay=$('overlay'), play=$('play');
@@ -115,7 +115,7 @@ async function loadDragons(){
     model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=false;o.material.roughness=.8;o.material.metalness=0;o.material.normalScale?.set(.5,.5);}});
     const root=new THREE.Group(),sway=new THREE.Group();root.add(sway);sway.add(model);root.position.set(spec.home[0],0,spec.home[1]);root.rotation.y=Math.atan2(-spec.home[0],5.5-spec.home[1]);scene.add(root);
     const label=document.createElement('div');label.className='dragon-label';label.textContent=spec.name;$('dragon-labels').append(label);
-    const light=new THREE.PointLight(0xff7a2f,0,7,2);scene.add(light);
+    const light=new THREE.PointLight(FLAME_STYLES[index].color,0,7,2);scene.add(light);
     dragons[index]={light,...spec,root,sway,model,label,shadow:contactShadow(1.7,.27),fan:warningFan(),mode:'idle',timer:3+index*1.7,angle:root.rotation.y,index,phase:index*1.4,attack:null,waypoint:null,emission:0};
     loaded++;$('load-progress').style.width=`${loaded/4*100}%`;play.textContent=`Waking the dragons… ${loaded}/4`;
   }));
@@ -201,7 +201,7 @@ function updateDragons(dt){
       }
     }else if(d.mode==='charge'){
       d.fan.material.color.setHex(0xffba48);d.fan.material.opacity=.3+(1-d.timer/RULES.chargeTime)*.25;
-      if(d.timer<=0){d.mode='fire';d.timer=RULES.fireTime;d.label.className='dragon-label firing';d.label.textContent=['ACHOO!','FWOOSH!','PUFF!','HONK!'][d.index];beep(85,.25,'sawtooth',.024);}
+      if(d.timer<=0){d.mode='fire';d.timer=RULES.fireTime;d.label.className='dragon-label firing';d.label.textContent=FLAME_STYLES[d.index].call;beep(85,.25,'sawtooth',.024);}
     }else if(d.mode==='fire'){
       d.fan.material.color.setHex(0xff713f);d.fan.material.opacity=.22;
       if(d.timer<=0)d.mode='cooling';

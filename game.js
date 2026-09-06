@@ -15,8 +15,8 @@ let muted=false,audio,toastTimer,flashTimer,lastFrame=0,frameCount=0;
 const dragons=[],gems=[],particles=[];
 const dummy=new THREE.Object3D(), temp=new THREE.Vector3(), camTarget=new THREE.Vector3();
 const raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
-let particlesMesh,flames,destinationRing,sophiaMixer,sophiaRun,sophiaIdleTime=0,wasRunning=false,celebrationRemaining=0;
-const characterAnimations={run:null,fast:null,gemCelebration:null,levelComplete:null};
+let particlesMesh,flames,destinationRing,sophiaMixer,sophiaRun,sophiaIdleTime=0,wasRunning=false,celebrationRemaining=0,gemJumpRemaining=0;
+const characterAnimations={run:null,fast:null,gemCelebration:null,levelComplete:null,levelDances:[]};
 const DRAGONS=[
   {file:'dragon-one',name:'Sir Snortstache',home:[-6,-3.7],height:3.25,mouth:.76,nozzle:1.05,color:0x67dcc0},
   {file:'dragon-two',name:'Flapjack',home:[6,-3.7],height:3.05,mouth:.76,nozzle:.85,color:0xffb795},
@@ -104,14 +104,19 @@ async function loadSophia(){
   let best=Infinity;
   for(let i=0;i<24;i++){const t=i/24*clip.duration;sophiaMixer.setTime(t);model.updateMatrixWorld(true);const l=model.getObjectByName('LeftFoot'),r=model.getObjectByName('RightFoot');if(l&&r){const a=l.getWorldPosition(new THREE.Vector3()),b=r.getWorldPosition(new THREE.Vector3()),cost=Math.abs(a.y-b.y)+Math.abs(a.z-b.z)*.4;if(cost<best){best=cost;sophiaIdleTime=t;}}}
   sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;
-  const celebration=await new GLTFLoader().loadAsync('./assets/models/sophia-level-complete.glb');
-  const dance=celebration.animations[0]?.clone();
-  if(!dance)throw new Error('Sophia celebration animation is missing');
-  for(const track of dance.tracks)if(/Hips\.position$/.test(track.name)){
-    for(let i=0;i<track.values.length;i+=3){track.values[i]=track.values[0];track.values[i+2]=track.values[2];}
+  for(const file of ['sophia-level-complete','sophia-happy-dance','sophia-gem-jump']){
+    const celebration=await new GLTFLoader().loadAsync(`./assets/models/${file}.glb`);
+    let dance=celebration.animations.reduce((longest,clip)=>!longest||clip.duration>longest.duration?clip:longest,null)?.clone();
+    if(file==='sophia-gem-jump'&&dance) dance=THREE.AnimationUtils.subclip(dance,'Gem happy jump',0,81,30);
+    if(!dance)throw new Error('Sophia celebration animation is missing');
+    for(const track of dance.tracks)if(/Hips\.position$/.test(track.name)){
+      for(let i=0;i<track.values.length;i+=3){track.values[i]=track.values[0];track.values[i+2]=track.values[2];}
+    }
+    const action=sophiaMixer.clipAction(dance);action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true;
+    if(file==='sophia-gem-jump'){characterAnimations.gemCelebration=action;action.setEffectiveTimeScale(1.7);}
+    else characterAnimations.levelDances.push(action);
   }
-  characterAnimations.levelComplete=sophiaMixer.clipAction(dance);
-  characterAnimations.levelComplete.setLoop(THREE.LoopOnce,1);characterAnimations.levelComplete.clampWhenFinished=true;
+  characterAnimations.levelComplete=characterAnimations.levelDances[0];
 }
 
 async function loadDragons(){
@@ -140,7 +145,7 @@ function resetInput(){input.x=input.z=0;input.target=null;input.keys.clear();inp
 function updateHUD(){$('level').textContent=state.level;$('score').textContent=state.score;$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(3-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} hearts`);}
 function newRound(next=false){
   state.level=next?state.level+1:1;
-  celebrationRemaining=0;characterAnimations.levelComplete.stop();sophiaRun.reset().play();sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;wasRunning=false;
+  celebrationRemaining=0;gemJumpRemaining=0;characterAnimations.gemCelebration.stop();characterAnimations.levelComplete.stop();sophiaRun.reset().play();sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;wasRunning=false;
   resetInput();Object.assign(state,{mode:'playing',time:0,score:0,hearts:3,invulnerable:1,dash:0,cooldown:0,elapsed:0});
   player.position.set(0,0,5.5);player.rotation.set(0,Math.PI,0);input.lastX=0;input.lastZ=-1;heroBody.visible=true;particles.length=0;flames.clear();
   for(const g of gems){g.collected=false;g.mesh.visible=g.ring.visible=true;}
@@ -153,8 +158,8 @@ function pause(){
 function resume(){state.mode='playing';overlay.hidden=true;$('pause').textContent='Ⅱ';$('pause').setAttribute('aria-label','Pause game');canvas.focus({preventScroll:true});}
 function showPanel(kicker,title,description,button){$('panel-kicker').textContent=kicker;$('panel-title').textContent=title;$('panel-description').textContent=description;$('instructions').hidden=true;$('panel-foot').textContent='Made from Sophia’s dragon ideas.';play.textContent=button;overlay.hidden=false;play.focus({preventScroll:true});}
 function finish(won){
-  state.mode=won?'won':'lost';resetInput();heroBody.visible=true;sophiaRun.paused=true;
-  if(won){sophiaRun.stop();characterAnimations.levelComplete.reset().play();celebrationRemaining=characterAnimations.levelComplete.getClip().duration;player.rotation.y=Math.atan2(camera.position.x-player.position.x,camera.position.z-player.position.z);for(let i=0;i<5;i++)burst(player.position.x+(i-2),2,player.position.z,0xffdd65,25);beep(880,.25);setTimeout(()=>beep(1174,.35),160);showPanel(`LEVEL ${state.level} COMPLETE!`,'A gem of an adventure.',`You out-dodged four silly dragons in ${Math.floor(state.elapsed/60)}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}. The next meadow has busier dragons!`,'Next level');overlay.hidden=true;toast('Level complete! Victory dance!');}
+  state.mode=won?'won':'lost';gemJumpRemaining=0;characterAnimations.gemCelebration.stop();resetInput();heroBody.visible=true;sophiaRun.paused=true;
+  if(won){characterAnimations.levelComplete=characterAnimations.levelDances[(state.level-1)%characterAnimations.levelDances.length];sophiaRun.stop();characterAnimations.levelComplete.reset().play();celebrationRemaining=characterAnimations.levelComplete.getClip().duration;player.rotation.y=Math.atan2(camera.position.x-player.position.x,camera.position.z-player.position.z);for(let i=0;i<5;i++)burst(player.position.x+(i-2),2,player.position.z,0xffdd65,25);beep(880,.25);setTimeout(()=>beep(1174,.35),160);showPanel(`LEVEL ${state.level} COMPLETE!`,'A gem of an adventure.',`You out-dodged four silly dragons in ${Math.floor(state.elapsed/60)}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}. The next meadow has busier dragons!`,'Next level');overlay.hidden=true;toast('Level complete! Victory dance!');}
   else{showPanel('A LITTLE TOO TOASTY','Oops. Dragon breath!',`You found ${state.score} of 20 gems. Try dashing sideways when the orange warning appears.`,'Try again');beep(180,.3,'triangle');}
 }
 function dash(){
@@ -176,11 +181,15 @@ function movePlayer(dt){
   [px,pz]=clampArena(px,pz);for(const d of dragons)[px,pz]=slideFromDragon(px,pz,d.root.position.x,d.root.position.z);[px,pz]=clampArena(px,pz);
   player.position.set(px,0,pz);if(length>.08)player.rotation.y=turnToward(player.rotation.y,Math.atan2(x,z),dt*15);
   const running=length>.08;
-  if(running){sophiaRun.paused=false;sophiaRun.setEffectiveTimeScale(dashing?1.7:1.05);sophiaMixer.update(dt);}
+  if(gemJumpRemaining>0){
+    sophiaMixer.update(dt);gemJumpRemaining=Math.max(0,gemJumpRemaining-dt);
+    if(gemJumpRemaining===0){characterAnimations.gemCelebration.stop();sophiaRun.reset().play();sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=!running;}
+  }
+  else if(running){sophiaRun.paused=false;sophiaRun.setEffectiveTimeScale(dashing?1.7:1.05);sophiaMixer.update(dt);}
   else if(wasRunning){sophiaRun.paused=false;sophiaMixer.setTime(sophiaIdleTime);sophiaRun.paused=true;}
   wasRunning=running;heroBody.visible=state.invulnerable<=0||Math.floor(state.invulnerable*10)%2===0;
   halo.material.color.set(dashing?0xffe891:0xffffff);halo.scale.setScalar(dashing?1.5:1);heroShadow.position.set(px,.04,pz);
-  for(const g of gems){if(!g.collected&&Math.hypot(px-g.x,pz-g.z)<.65){g.collected=true;g.mesh.visible=g.ring.visible=false;state.score++;updateHUD();burst(g.x,.75,g.z,0xc08bff,14);beep(640+state.score*24,.14);if(state.score===10)toast('Halfway! Those dragons look worried.');if(state.score===RULES.goal){finish(true);break;}}}
+  for(const g of gems){if(!g.collected&&Math.hypot(px-g.x,pz-g.z)<.65){g.collected=true;g.mesh.visible=g.ring.visible=false;state.score++;updateHUD();burst(g.x,.75,g.z,0xc08bff,14);beep(640+state.score*24,.14);if(state.score===10)toast('Halfway! Those dragons look worried.');if(state.score===RULES.goal){finish(true);break;}if(gemJumpRemaining===0){sophiaRun.stop();const jump=characterAnimations.gemCelebration;jump.reset().setEffectiveTimeScale(1.7).play();gemJumpRemaining=jump.getClip().duration/1.7;}}}
   // Keep dash immunity for the complete frame in which the dash was active.
   if(dashing){state.invulnerable=Math.max(state.invulnerable,dt+.025);state.dash=Math.max(0,state.dash-dt);}
   $('dash').classList.toggle('cooling',state.cooldown>0);$('dash-status').textContent=state.cooldown>0?`${state.cooldown.toFixed(1)}s`:'Ready!';$('dash').setAttribute('aria-label',state.cooldown>0?'Dash recharging':'Dash');

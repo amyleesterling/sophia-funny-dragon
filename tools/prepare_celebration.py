@@ -17,4 +17,4 @@ for animation in doc['animations']:
     for sampler in animation['samplers']:
         for key in ['input','output']:sampler[key]=used.index(sampler[key])
 doc['accessors']=accessors;doc['bufferViews']=views
-out=Path(__file__).resolve().parents[1]/'assets/models/sophia-level-complete.glb';out.write_bytes(pack(doc,bytes(blob)));print(out.name,out.stat().st_size)
+out=Path(__file__).resolve().parents[1]/'assets/models'/(sys.argv[2] if len(sys.argv)>2 else 'sophia-level-complete.glb');out.write_bytes(pack(doc,bytes(blob)));print(out.name,out.stat().st_size)

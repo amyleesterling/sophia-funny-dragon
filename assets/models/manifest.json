@@ -51,5 +51,21 @@
     "animations": [
       "Armature|jazz_danc|baselayer"
     ]
+  },
+  {
+    "source": "sophia happy dance v2.glb",
+    "file": "sophia-happy-dance.glb",
+    "bytes": 146628,
+    "animation_only": true,
+    "animations": [
+      "rigify_clip",
+      "Armature|clip0|baselayer"
+    ]
+  },
+  {
+    "source": "happy jump dance sophia gem.glb",
+    "file": "sophia-gem-jump.glb",
+    "bytes": 141880,
+    "animation_only": true
   }
 ]

@@ -49,3 +49,7 @@ Sir Snortstache blows mint-green mustached puffs; Flapjack blows pink bubbles; P
 Original concepts: [all ten dragon references](../assets/references/README.md).
 
 Sophia plays the uploaded jazz dance once after collecting the final gem, facing the camera. The next-level panel appears after the dance; starting the next level restores her running action. `sophia-level-complete.glb` contains only animation and its named hierarchy, reusing the existing Sophia mesh and textures. Rebuild with `python tools/prepare_celebration.py "path/to/sophie level complete animation.glb"`.
+
+The two uploaded victory dances alternate: the first on odd levels, the happy dance on even levels. Rebuild the second with `python tools/prepare_celebration.py "path/to/sophia happy dance v2.glb" sophia-happy-dance.glb`.
+
+Gem pickups play the opening happy-jump sequence (first 2.7 seconds at 1.7× speed), with movement and dash still available. Pickups during a jump do not restart it. The final gem takes priority and starts the level dance.
